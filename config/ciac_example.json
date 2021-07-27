@@ -1,0 +1,5 @@
+{
+  "email": "your email address",
+  "password": "your password",
+  "tokenFile": "the file name which will store the token"
+}
