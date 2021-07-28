@@ -32,20 +32,6 @@ func init() {
 	}
 }
 
-var (
-	ConfigFlag = &cli.StringFlag{
-		Name:    "config",
-		Aliases: []string{"c"},
-		Value:   "config.json",
-		Usage:   "load configuration from `file`",
-	}
-	ServerFlag = &cli.StringFlag{
-		Name:    "server",
-		Aliases: []string{"s"},
-		Value:   "https://test.caitan.app",
-		Usage:   "connect to `server`",
-	}
-)
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
