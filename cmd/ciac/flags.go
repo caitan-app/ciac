@@ -31,4 +31,23 @@ var (
 		Name:  "ic",
 		Usage: "invitation `code`",
 	}
+	StartFlag = &cli.Int64Flag{
+		Name:  "start",
+		Usage: "only return records after `start`",
+	}
+	EndFlag = &cli.Int64Flag{
+		Name:        "end",
+		DefaultText: "now",
+		Usage:       "only return records before `end`",
+	}
+	PageFlag = &cli.IntFlag{
+		Name:  "page",
+		Value: 0,
+		Usage: "current `page`, start from 0",
+	}
+	PageSizeFlag = &cli.IntFlag{
+		Name:  "pageSize",
+		Value: 10,
+		Usage: "page size",
+	}
 )

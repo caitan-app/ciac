@@ -16,7 +16,7 @@ func init() {
 	app = &cli.App{
 		Name:    filepath.Base(os.Args[0]),
 		Usage:   "Crypto Investment Advisor Client",
-		Version: "0.1.1",
+		Version: "0.1.2",
 	}
 
 	app.Commands = []*cli.Command{
@@ -25,13 +25,14 @@ func init() {
 		registerCommand,
 		loginCommand,
 		userCommand,
+		invitedCommand,
+		rechargedCommand,
 	}
 	app.Flags = []cli.Flag{
 		ConfigFlag,
 		ServerFlag,
 	}
 }
-
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())

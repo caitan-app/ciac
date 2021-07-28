@@ -49,6 +49,28 @@ var (
 		Flags: []cli.Flag{
 		},
 	}
+	invitedCommand = &cli.Command{
+		Action: invited,
+		Name:   "invited",
+		Usage:  "List invited records",
+		Flags: []cli.Flag{
+			StartFlag,
+			EndFlag,
+			PageFlag,
+			PageSizeFlag,
+		},
+	}
+	rechargedCommand = &cli.Command{
+		Action: recharged,
+		Name:   "recharged",
+		Usage:  "List recharged records",
+		Flags: []cli.Flag{
+			StartFlag,
+			EndFlag,
+			PageFlag,
+			PageSizeFlag,
+		},
+	}
 )
 
 func timestamp(c *cli.Context) error {
@@ -106,8 +128,8 @@ func login(c *cli.Context) error {
 	}
 	force := c.Bool(ForceFlag.Name)
 	endpoint := client.New(cfg, server)
-	var token *client.Token
-	if token, err = endpoint.Login(force); err != nil {
+	token, err := endpoint.Login(force)
+	if err != nil {
 		log.Printf("Login error: %s", err)
 		return err
 	}
@@ -115,8 +137,51 @@ func login(c *cli.Context) error {
 	return nil
 }
 
-func user(ctx *cli.Context) error {
-	return nil
+// user list user info
+func user(c *cli.Context) error {
+	server := c.String(ServerFlag.Name)
+	log.Printf("Server is %s", server)
+	cfg, err := parseConfig(c.String(ConfigFlag.Name))
+	if err != nil {
+		return err
+	}
+	endpoint := client.New(cfg, server)
+
+	return endpoint.UserInfo(c.Context)
+}
+
+// invited list invited records
+func invited(c *cli.Context) error {
+	cfg, err := parseConfig(c.String(ConfigFlag.Name))
+	if err != nil {
+		return err
+	}
+	server := c.String(ServerFlag.Name)
+	log.Printf("Server is %s", server)
+	endpoint := client.New(cfg, server)
+
+	start := c.Int64(StartFlag.Name)
+	end := c.Int64(EndFlag.Name)
+	page := c.Int(PageFlag.Name)
+	pageSize := c.Int(PageSizeFlag.Name)
+	return endpoint.InvitationRecords(c.Context, start, end, page, pageSize)
+}
+
+// recharged list recharged records
+func recharged(c *cli.Context) error {
+	cfg, err := parseConfig(c.String(ConfigFlag.Name))
+	if err != nil {
+		return err
+	}
+	server := c.String(ServerFlag.Name)
+	log.Printf("Server is %s", server)
+	endpoint := client.New(cfg, server)
+
+	start := c.Int64(StartFlag.Name)
+	end := c.Int64(EndFlag.Name)
+	page := c.Int(PageFlag.Name)
+	pageSize := c.Int(PageSizeFlag.Name)
+	return endpoint.RechargeRecords(c.Context, start, end, page, pageSize)
 }
 
 func parseConfig(filename string) (client.Config, error) {
