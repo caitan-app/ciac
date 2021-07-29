@@ -127,89 +127,81 @@ func (c *Client) UserInfo(ctx context.Context) (*Profile, error) {
 	return &profile, nil
 }
 
-func (c *Client) InvitationRecords(ctx context.Context, start, end int64, page, pageSize int) error {
+type InvitationRecord struct {
+	NickName     string `json:"nickName"`
+	RewardType   int    `json:"rewardType"`
+	RewardNumber int    `json:"rewardNumber"`
+	RewardUnit   int    `json:"rewardUnit"`
+	RewardTime   int64  `json:"rewardTime"`
+}
+
+func (c *Client) InvitationRecords(ctx context.Context, start, end int64, page, pageSize int) ([]InvitationRecord, error) {
 	if _, err := c.Login(false); err != nil {
-		return err
+		return nil, err
 	}
 
 	url, err := pagingRequest(c.Server, "invitationRecord", start, end, page, pageSize)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	data, err := getRecords(ctx, url, c.token.JWT)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	type Record struct {
-		NickName     string `json:"nickName"`
-		RewardType   int    `json:"rewardType"`
-		RewardNumber int    `json:"rewardNumber"`
-		RewardUnit   int    `json:"rewardUnit"`
-		RewardTime   int64  `json:"rewardTime"`
-	}
 	var resp struct {
 		State   int
 		Message string `json:"msg"`
 		Data    struct {
 			Result  int
-			Records []Record `json:"record"`
+			Records []InvitationRecord `json:"record"`
 		}
 	}
 	if err = json.Unmarshal(data, &resp); err != nil {
-		return err
+		return nil, err
 	}
-	log.Printf("Response:\n%s", BeautifyJson(resp))
+	//log.Printf("Response:\n%s", BeautifyJson(resp))
 
-	log.Printf("id	nickName	rewardType	rewardNumber	rewardUnit	rewardTime")
-	for i, r := range resp.Data.Records {
-		rewardAt := time.Unix(r.RewardTime/1000, 0)
-		log.Printf("%d	%s	%d	%d %d	%s", i, r.NickName, r.RewardType, r.RewardNumber, r.RewardUnit, rewardAt)
-	}
-	return nil
+	return resp.Data.Records, nil
 }
 
-func (c *Client) RechargeRecords(ctx context.Context, start, end int64, page, pageSize int) error {
+type RechargeRecord struct {
+	NickName       string  `json:"rechargeFor"`
+	RechargeFrom   string  `json:"rechargeFrom"`
+	RechargeTo     string  `json:"rechargeTo"`
+	RechargeNumber float64 `json:"rechargeNumber"`
+	RechargeUnit   int     `json:"rechargeUnit"`
+	RechargeTime   int64   `json:"rechargeTime"`
+}
+
+func (c *Client) RechargeRecords(ctx context.Context, start, end int64, page, pageSize int) ([]RechargeRecord, error) {
 	_, err := c.Login(false)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	url, err := pagingRequest(c.Server, "rechargeRecord", start, end, page, pageSize)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	data, err := getRecords(ctx, url, c.token.JWT)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	type Record struct {
-		NickName       string  `json:"rechargeFor"`
-		RechargeFrom   string  `json:"rechargeFrom"`
-		RechargeTo     string  `json:"rechargeTo"`
-		RechargeNumber float64 `json:"rechargeNumber"`
-		RechargeUnit   int     `json:"rechargeUnit"`
-		RechargeTime   int64   `json:"rechargeTime"`
-	}
 	var resp struct {
 		State   int
 		Message string `json:"msg"`
 		Data    struct {
 			Result  int
-			Records []Record `json:"record"`
+			Records []RechargeRecord `json:"record"`
 		}
 	}
 	if err = json.Unmarshal(data, &resp); err != nil {
-		return err
+		return nil, err
 	}
-	log.Printf("Response:\n%s", BeautifyJson(resp))
+	//log.Printf("Response:\n%s", BeautifyJson(resp))
 
-	log.Printf("id	nickName	rechargeFrom	rechargeTo	rechargeNumber	rechargeUnit	rechargeTime")
-	for i, r := range resp.Data.Records {
-		rewardAt := time.Unix(r.RechargeTime/1000, 0)
-		log.Printf("%d	%s	%s	%s	%f %d	%s", i, r.NickName, r.RechargeFrom, r.RechargeTo, r.RechargeNumber, r.RechargeUnit, rewardAt)
-	}
-	return nil
+	return resp.Data.Records, nil
 }
 
 func (c *Client) Bind(ctx context.Context, code string) (bool, error) {

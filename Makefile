@@ -3,6 +3,8 @@
 
 VERSION = $(shell git describe --tags)
 
+clean:
+	rm -rf build
 all: linux-amd64 darwin-amd64 darwin-arm64
 	@echo "all done"
 

@@ -178,7 +178,17 @@ func invited(c *cli.Context) error {
 	end := c.Int64(EndFlag.Name)
 	page := c.Int(PageFlag.Name)
 	pageSize := c.Int(PageSizeFlag.Name)
-	return endpoint.InvitationRecords(c.Context, start, end, page, pageSize)
+	records, err := endpoint.InvitationRecords(c.Context, start, end, page, pageSize)
+	if err != nil {
+		log.Printf("Get invitation records error: %s", err)
+		return err
+	}
+	log.Printf("id	nickName	rewardType	rewardNumber	rewardUnit	rewardTime")
+	for i, r := range records {
+		rewardAt := time.Unix(r.RewardTime/1000, 0)
+		log.Printf("%d	%s	%d	%d %d	%s", i+1, r.NickName, r.RewardType, r.RewardNumber, r.RewardUnit, rewardAt)
+	}
+	return nil
 }
 
 // recharged list recharged records
@@ -195,7 +205,17 @@ func recharged(c *cli.Context) error {
 	end := c.Int64(EndFlag.Name)
 	page := c.Int(PageFlag.Name)
 	pageSize := c.Int(PageSizeFlag.Name)
-	return endpoint.RechargeRecords(c.Context, start, end, page, pageSize)
+	records, err := endpoint.RechargeRecords(c.Context, start, end, page, pageSize)
+	if err != nil {
+		log.Printf("Get recharge records error: %s", err)
+		return err
+	}
+	log.Printf("id	nickName	rechargeFrom	rechargeTo	rechargeNumber	rechargeUnit	rechargeTime")
+	for i, r := range records {
+		rewardAt := time.Unix(r.RechargeTime/1000, 0)
+		log.Printf("%d	%s	%s	%s	%f %d	%s", i, r.NickName, r.RechargeFrom, r.RechargeTo, r.RechargeNumber, r.RechargeUnit, rewardAt)
+	}
+	return nil
 }
 
 func bind(c *cli.Context) error {

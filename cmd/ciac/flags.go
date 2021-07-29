@@ -46,9 +46,9 @@ var (
 		Usage: "current `page`, start from 0",
 	}
 	PageSizeFlag = &cli.IntFlag{
-		Name:  "pageSize",
+		Name:  "size",
 		Value: 10,
-		Usage: "page size",
+		Usage: "page `size`",
 	}
 	CodeFlag = &cli.StringFlag{
 		Name:  "code",
