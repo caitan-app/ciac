@@ -211,8 +211,13 @@ func bind(c *cli.Context) error {
 	server := c.String(ServerFlag.Name)
 	log.Printf("Server is %s", server)
 	endpoint := client.New(cfg, server)
-
-	return endpoint.Bind(c.Context, code)
+	success, err := endpoint.Bind(c.Context, code)
+	if err != nil || !success {
+		log.Printf("bind failed, error: %s", err)
+		return err
+	}
+	log.Println("bind success")
+	return nil
 }
 
 func parseConfig(filename string) (client.Config, error) {
