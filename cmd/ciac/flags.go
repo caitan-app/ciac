@@ -50,4 +50,8 @@ var (
 		Value: 10,
 		Usage: "page size",
 	}
+	CodeFlag = &cli.StringFlag{
+		Name:  "code",
+		Usage: "invitation `code`",
+	}
 )

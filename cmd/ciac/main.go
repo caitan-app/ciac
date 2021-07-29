@@ -27,6 +27,7 @@ func init() {
 		userCommand,
 		invitedCommand,
 		rechargedCommand,
+		bindCommand,
 	}
 	app.Flags = []cli.Flag{
 		ConfigFlag,

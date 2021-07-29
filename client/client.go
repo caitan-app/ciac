@@ -27,8 +27,8 @@ type Client struct {
 }
 
 type Token struct {
-	JWT      string `json:"jwt"`
-	ExpireAt time.Time
+	JWT      string    `json:"jwt"`
+	ExpireAt time.Time `json:"expireAt"`
 }
 
 func New(cfg Config, server string) *Client {
@@ -210,6 +210,55 @@ func (c *Client) RechargeRecords(ctx context.Context, start, end int64, page, pa
 		log.Printf("%d	%s	%s	%s	%f %d	%s", i, r.NickName, r.RechargeFrom, r.RechargeTo, r.RechargeNumber, r.RechargeUnit, rewardAt)
 	}
 	return nil
+}
+
+func (c *Client) Bind(ctx context.Context, code string) (bool, error) {
+	_, err := c.Login(false)
+	if err != nil {
+		return false, err
+	}
+
+	u, err := url.Parse(c.Server)
+	if err != nil {
+		return false, err
+	}
+	u.Path = path.Join(u.Path, "bindInvitation")
+	q := u.Query()
+	q.Set("invitationCode", code)
+	u.RawQuery = q.Encode()
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return false, err
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token.JWT))
+	hc := &http.Client{}
+	resp, err := hc.Do(request)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+	log.Printf("Status: %s", resp.Status)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, err
+	}
+	log.Printf("Raw response: %s", string(body))
+	var ret struct {
+		State   int
+		Message string `json:"msg"`
+		Data    struct {
+			Result int
+		}
+	}
+	if err := json.Unmarshal(body, &ret); err != nil {
+		return false, err
+	}
+	if ret.Data.Result == 1 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
 func pagingRequest(server, relativePath string, start, end int64, page, pageSize int) (string, error) {

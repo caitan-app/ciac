@@ -71,6 +71,14 @@ var (
 			PageSizeFlag,
 		},
 	}
+	bindCommand = &cli.Command{
+		Action: bind,
+		Name:   "bind",
+		Usage:  "Bind invitation code",
+		Flags: []cli.Flag{
+			CodeFlag,
+		},
+	}
 )
 
 func timestamp(c *cli.Context) error {
@@ -188,6 +196,23 @@ func recharged(c *cli.Context) error {
 	page := c.Int(PageFlag.Name)
 	pageSize := c.Int(PageSizeFlag.Name)
 	return endpoint.RechargeRecords(c.Context, start, end, page, pageSize)
+}
+
+func bind(c *cli.Context) error {
+	code := c.String(CodeFlag.Name)
+	if code == "" {
+		log.Println("you need specify invitation code")
+		return nil
+	}
+	cfg, err := parseConfig(c.String(ConfigFlag.Name))
+	if err != nil {
+		return err
+	}
+	server := c.String(ServerFlag.Name)
+	log.Printf("Server is %s", server)
+	endpoint := client.New(cfg, server)
+
+	return endpoint.Bind(c.Context, code)
 }
 
 func parseConfig(filename string) (client.Config, error) {
