@@ -44,7 +44,7 @@ func Timestamp(server string) (int64, error) {
 	if err = json.Unmarshal(body, &timestamp); err != nil {
 		return 0, err
 	}
-	log.Printf("Response:\n%s", beautifyJson(timestamp))
+	log.Printf("Response:\n%s", BeautifyJson(timestamp))
 	return timestamp.Data.Timestamp, nil
 }
 
@@ -83,7 +83,7 @@ func SendCode(server, email string) error {
 	if err = json.Unmarshal(body, &ret); err != nil {
 		return err
 	}
-	log.Printf("Response:\n%s", beautifyJson(ret))
+	log.Printf("Response:\n%s", BeautifyJson(ret))
 	return nil
 }
 
@@ -128,17 +128,17 @@ func Register(server, email, password, verify, invite string) error {
 	if err = json.Unmarshal(body, &ret); err != nil {
 		return err
 	}
-	log.Printf("Response:\n%s", beautifyJson(ret))
+	log.Printf("Response:\n%s", BeautifyJson(ret))
 	return nil
 }
 
-func beautifyJson(v interface{}) string {
+func BeautifyJson(v interface{}) string {
 	data, _ := json.MarshalIndent(v, "", "  ")
 	return fmt.Sprintf("%s", string(data))
 }
 
 func post(url string, request interface{}) (*http.Response, error) {
-	log.Printf("Request:\n%s", beautifyJson(request))
+	log.Printf("Request:\n%s", BeautifyJson(request))
 	b, _ := json.Marshal(request)
 	r := bytes.NewBuffer(b)
 	return http.Post(url, "application/json", r)

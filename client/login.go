@@ -78,7 +78,7 @@ func login(url, email, password string) (*Token, error) {
 	}
 	defer resp.Body.Close()
 	log.Printf("Status: %s", resp.Status)
-	log.Printf("Header: %s", beautifyJson(resp.Header))
+	log.Printf("Header: %s", BeautifyJson(resp.Header))
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func login(url, email, password string) (*Token, error) {
 	if err = json.Unmarshal(body, &ret); err != nil {
 		return nil, err
 	}
-	log.Printf("Response:\n%s", beautifyJson(ret))
+	log.Printf("Response:\n%s", BeautifyJson(ret))
 	if ret.Data.Result != 1 {
 		return nil, errors.New(ret.Message)
 	}
@@ -104,7 +104,7 @@ func login(url, email, password string) (*Token, error) {
 		return nil, errors.New("no cookie")
 	}
 	token := parseToken(cookie[0])
-	log.Printf("Cookie:\n%s", beautifyJson(token))
+	log.Printf("Cookie:\n%s", BeautifyJson(token))
 
 	return &token, nil
 }

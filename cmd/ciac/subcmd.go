@@ -147,7 +147,13 @@ func user(c *cli.Context) error {
 	}
 	endpoint := client.New(cfg, server)
 
-	return endpoint.UserInfo(c.Context)
+	profile, err := endpoint.UserInfo(c.Context)
+	if err != nil {
+		log.Printf("get user info error: %s", err)
+		return err
+	}
+	log.Printf("Profile:\n%s", client.BeautifyJson(profile))
+	return nil
 }
 
 // invited list invited records

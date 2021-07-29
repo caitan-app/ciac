@@ -67,14 +67,14 @@ type Profile struct {
 	RemainingTime string `json:"remainingTime"`
 }
 
-func (c *Client) UserInfo(ctx context.Context) error {
+func (c *Client) UserInfo(ctx context.Context) (*Profile, error) {
 	if _, err := c.Login(false); err != nil {
-		return err
+		return nil, err
 	}
 
 	u, err := url.Parse(c.Server)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	u.Path = path.Join(u.Path, "user")
 	q := u.Query()
@@ -84,19 +84,19 @@ func (c *Client) UserInfo(ctx context.Context) error {
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token.JWT))
 	hc := &http.Client{}
 	resp, err := hc.Do(request)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	log.Printf("Status: %s", resp.Status)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	log.Printf("Raw response: %s", string(body))
 
@@ -113,9 +113,9 @@ func (c *Client) UserInfo(ctx context.Context) error {
 		}
 	}
 	if err = json.Unmarshal(body, &ret); err != nil {
-		return err
+		return nil, err
 	}
-	log.Printf("Response:\n%s", beautifyJson(ret))
+	log.Printf("Response:\n%s", BeautifyJson(ret))
 
 	profile := Profile{
 		Email:         ret.Data.Email,
@@ -123,8 +123,8 @@ func (c *Client) UserInfo(ctx context.Context) error {
 		Expire:        ret.Data.Expire,
 		RemainingTime: time.Duration(ret.Data.RemainTime * 1e6).String(),
 	}
-	log.Printf("Profile:\n%s", beautifyJson(profile))
-	return nil
+	log.Printf("Profile:\n%s", BeautifyJson(profile))
+	return &profile, nil
 }
 
 func (c *Client) InvitationRecords(ctx context.Context, start, end int64, page, pageSize int) error {
@@ -159,7 +159,7 @@ func (c *Client) InvitationRecords(ctx context.Context, start, end int64, page, 
 	if err = json.Unmarshal(data, &resp); err != nil {
 		return err
 	}
-	log.Printf("Response:\n%s", beautifyJson(resp))
+	log.Printf("Response:\n%s", BeautifyJson(resp))
 
 	log.Printf("id	nickName	rewardType	rewardNumber	rewardUnit	rewardTime")
 	for i, r := range resp.Data.Records {
@@ -202,7 +202,7 @@ func (c *Client) RechargeRecords(ctx context.Context, start, end int64, page, pa
 	if err = json.Unmarshal(data, &resp); err != nil {
 		return err
 	}
-	log.Printf("Response:\n%s", beautifyJson(resp))
+	log.Printf("Response:\n%s", BeautifyJson(resp))
 
 	log.Printf("id	nickName	rechargeFrom	rechargeTo	rechargeNumber	rechargeUnit	rechargeTime")
 	for i, r := range resp.Data.Records {
