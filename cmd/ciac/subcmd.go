@@ -220,10 +220,10 @@ func recharged(c *cli.Context) error {
 		log.Printf("Get recharge records error: %s", err)
 		return err
 	}
-	log.Printf("id	nickName	rechargeFrom	rechargeTo	rechargeNumber	rechargeUnit	rechargeTime")
+	log.Printf("id	nickName	rechargeFrom	rechargeTo	rechargeNumber	rechargeUnit(symbol)	rechargeTime")
 	for i, r := range records {
 		rewardAt := time.Unix(r.RechargeTime/1000, 0)
-		log.Printf("%d	%s	%s	%s	%f %d	%s", i, r.NickName, r.RechargeFrom, r.RechargeTo, r.RechargeNumber, r.RechargeUnit, rewardAt)
+		log.Printf("%d	%d	%s	%s	%f %d(%s)	%s", i, r.RechargeFor, r.RechargeFrom, r.RechargeTo, r.RechargeNumber, r.RechargeUnit, r.Symbol, rewardAt)
 	}
 	return nil
 }

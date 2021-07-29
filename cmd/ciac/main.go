@@ -16,7 +16,7 @@ func init() {
 	app = &cli.App{
 		Name:    filepath.Base(os.Args[0]),
 		Usage:   "Crypto Investment Advisor Client",
-		Version: "0.2.4",
+		Version: "0.2.5",
 	}
 
 	app.Commands = []*cli.Command{

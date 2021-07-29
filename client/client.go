@@ -166,12 +166,16 @@ func (c *Client) InvitationRecords(ctx context.Context, start, end int64, page, 
 }
 
 type RechargeRecord struct {
-	NickName       string  `json:"rechargeFor"`
+	RechargeFor    int     `json:"rechargeFor"`
 	RechargeFrom   string  `json:"rechargeFrom"`
 	RechargeTo     string  `json:"rechargeTo"`
 	RechargeNumber float64 `json:"rechargeNumber"`
 	RechargeUnit   int     `json:"rechargeUnit"`
 	RechargeTime   int64   `json:"rechargeTime"`
+	Chain          string  `json:"chain"`
+	Amount         float64 `json:"amount"`
+	Symbol         string  `json:"symbol"`
+	ArrivalTime    int64   `json:"arrivalTime"` // record created time in ms
 }
 
 func (c *Client) RechargeRecords(ctx context.Context, start, end int64, page, pageSize int) ([]RechargeRecord, error) {
