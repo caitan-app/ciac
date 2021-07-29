@@ -79,6 +79,16 @@ var (
 			CodeFlag,
 		},
 	}
+	addressCommand = &cli.Command{
+		Action: address,
+		Name:   "address",
+		Usage:  "Print recharge address",
+		Flags: []cli.Flag{
+			ProtocolFlag,
+			TypeFlag,
+			ForceAddressFlag,
+		},
+	}
 )
 
 func timestamp(c *cli.Context) error {
@@ -240,10 +250,67 @@ func bind(c *cli.Context) error {
 	return nil
 }
 
+func address(c *cli.Context) error {
+	protocols := c.IntSlice(ProtocolFlag.Name)
+	types := c.IntSlice(TypeFlag.Name)
+	if protocols == nil {
+		protocols = append(protocols, 0, 1, 2)
+	}
+	if types == nil {
+		types = append(types, 0, 1, 2, 3)
+	}
+	pts := filter(protocols, types)
+
+	force := c.Bool(ForceAddressFlag.Name)
+	cfg, err := parseConfig(c.String(ConfigFlag.Name))
+	if err != nil {
+		return err
+	}
+	server := c.String(ServerFlag.Name)
+	log.Printf("Server is %s", server)
+	endpoint := client.New(cfg, server)
+	for e, _ := range pts {
+		addr, err := endpoint.Address(c.Context, e.protocol, e.cType, force)
+		if err != nil {
+			log.Printf("Get recharge address error: %s", err)
+		} else {
+			log.Printf("protocol: %d, type: %d, address: %s", e.protocol, e.cType, addr)
+		}
+	}
+
+	return nil
+}
+
 func parseConfig(filename string) (client.Config, error) {
 	var c client.Config
 	if err := hs.ParseJsonConfig(filename, &c); err != nil {
 		return c, err
 	}
 	return c, nil
+}
+
+type pt struct {
+	protocol, cType int
+}
+
+var validPT = map[pt]bool{
+	{0, 0}: true,
+	{0, 1}: true,
+	{0, 2}: true,
+	{0, 3}: true,
+	{1, 0}: true,
+	{1, 1}: true,
+	{2, 0}: true,
+}
+
+func filter(protocols, types []int) map[pt]bool {
+	pts := make(map[pt]bool)
+	for _, p := range protocols {
+		for _, t := range types {
+			if validPT[pt{p, t}] {
+				pts[pt{p, t}] = true
+			}
+		}
+	}
+	return pts
 }

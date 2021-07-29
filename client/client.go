@@ -217,6 +217,7 @@ func (c *Client) Bind(ctx context.Context, code string) (bool, error) {
 	u.Path = path.Join(u.Path, "bindInvitation")
 	q := u.Query()
 	q.Set("invitationCode", code)
+	q.Set("tamptime", strconv.FormatInt(time.Now().Unix()*1000, 10))
 	u.RawQuery = q.Encode()
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
@@ -250,6 +251,62 @@ func (c *Client) Bind(ctx context.Context, code string) (bool, error) {
 		return true, nil
 	} else {
 		return false, nil
+	}
+}
+
+func (c *Client) Address(ctx context.Context, protocol, cType int, force bool) (string, error) {
+	_, err := c.Login(false)
+	if err != nil {
+		return "", err
+	}
+
+	u, err := url.Parse(c.Server)
+	if err != nil {
+		return "", err
+	}
+	u.Path = path.Join(u.Path, "recharge")
+	q := u.Query()
+	q.Set("protocol", strconv.Itoa(protocol))
+	q.Set("protocol", strconv.Itoa(cType))
+	q.Set("force", fmt.Sprintf("%v", force))
+	q.Set("tamptime", strconv.FormatInt(time.Now().Unix()*1000, 10))
+	u.RawQuery = q.Encode()
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return "", err
+	}
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.token.JWT))
+	hc := &http.Client{}
+	resp, err := hc.Do(request)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	log.Printf("Status: %s", resp.Status)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	log.Printf("Raw response: %s", string(body))
+	var ret struct {
+		State   int
+		Message string `json:"msg"`
+		Data    struct {
+			Result   int
+			Protocol int
+			Type     int
+			Address  string `json:"addressText"`
+			Remarks  string `json:"remarks"`
+		}
+	}
+	if err := json.Unmarshal(body, &ret); err != nil {
+		return "", err
+	}
+	if ret.State == 200 {
+		return ret.Data.Address, nil
+	} else {
+		return "", nil
 	}
 }
 

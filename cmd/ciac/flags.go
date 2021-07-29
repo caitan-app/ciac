@@ -20,8 +20,9 @@ var (
 		Usage: "send verification code to `email`",
 	}
 	ForceFlag = &cli.BoolFlag{
-		Name:  "force",
-		Usage: "force to login (always update token)",
+		Name:    "force",
+		Aliases: []string{"f"},
+		Usage:   "force to login (always update token)",
 	}
 	VerificationCodeFlag = &cli.StringFlag{
 		Name:  "vc",
@@ -53,5 +54,18 @@ var (
 	CodeFlag = &cli.StringFlag{
 		Name:  "code",
 		Usage: "invitation `code`",
+	}
+	ProtocolFlag = &cli.IntSliceFlag{
+		Name:  "protocol",
+		Usage: "protocols for recharge",
+	}
+	TypeFlag = &cli.IntSliceFlag{
+		Name:  "type",
+		Usage: "types for recharge",
+	}
+	ForceAddressFlag = &cli.BoolFlag{
+		Name:    "force",
+		Aliases: []string{"f"},
+		Usage:   "generate a new address if not exist",
 	}
 )
