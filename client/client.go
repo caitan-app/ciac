@@ -335,7 +335,7 @@ func pagingRequest(server, relativePath string, start, end int64, page, pageSize
 		q.Set("pagerNum", strconv.Itoa(pageSize))
 	}
 	u.RawQuery = q.Encode()
-	log.Printf("request URL %s", u)
+	//log.Printf("request URL %s", u)
 	return u.String(), nil
 }
 
@@ -351,11 +351,11 @@ func getRecords(ctx context.Context, url, token string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	log.Printf("Status: %s", resp.Status)
+	//log.Printf("Status: %s", resp.Status)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("Raw response: %s", string(body))
+	//log.Printf("Raw response: %s", string(body))
 	return body, nil
 }
